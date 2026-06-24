@@ -7,12 +7,11 @@ OUTDIR ?= build_out
 $(OUTDIR):
 	mkdir -p $(OUTDIR)
 
-$(OUTDIR)/smoke_eth: tests/smoke_eth.c src/eth.c include/dephy_eth/eth.h | $(OUTDIR)
-	$(CC) $(CFLAGS) -Iinclude tests/smoke_eth.c src/eth.c -o $@
+$(OUTDIR)/unit_eth: tests/unit_eth.c src/eth.c include/dephy_eth/eth.h | $(OUTDIR)
+	$(CC) $(CFLAGS) -Iinclude tests/unit_eth.c src/eth.c -o $@
 
-test: $(OUTDIR)/smoke_eth
+test: $(OUTDIR)/unit_eth
 	$<
 
 clean:
 	rm -rf $(OUTDIR)
-

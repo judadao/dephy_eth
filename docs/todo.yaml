@@ -1,0 +1,5 @@
+todos:
+  - id: ethernet-runtime-reconfigure
+    status: pending
+    title: Support runtime IP reconfiguration without reboot
+    notes: Current products reboot after network config save.
