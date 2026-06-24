@@ -192,6 +192,35 @@ static int configure_static_ipv4(struct net_if *iface,
     return 0;
 }
 
+static int configure_service_ipv4(struct net_if *iface,
+                                  const dephy_eth_settings_t *settings)
+{
+    struct net_in_addr addr;
+    struct net_in_addr netmask;
+    const char *ip = settings->service_ip;
+    const char *mask = settings->netmask[0] ?
+        settings->netmask : "255.255.255.0";
+
+    if (!ip[0] || strcmp(ip, settings->device_ip) == 0) {
+        return 0;
+    }
+    if (net_addr_pton(AF_INET, ip, &addr) != 0 ||
+        net_addr_pton(AF_INET, mask, &netmask) != 0) {
+        LOG_ERR("invalid Ethernet service IPv4 ip=%s mask=%s", ip, mask);
+        return -EINVAL;
+    }
+    if (!net_if_ipv4_addr_add(iface, &addr, NET_ADDR_MANUAL, 0)) {
+        LOG_ERR("failed to assign Ethernet service IPv4 %s", ip);
+        return -EIO;
+    }
+    if (!net_if_ipv4_set_netmask_by_addr(iface, &addr, &netmask)) {
+        LOG_ERR("failed to set Ethernet service netmask %s", mask);
+        return -EIO;
+    }
+    LOG_INF("Ethernet service ip=%s", ip);
+    return 0;
+}
+
 static int configure_fallback_ipv4(struct net_if *iface)
 {
     dephy_eth_settings_t fallback;
@@ -259,6 +288,12 @@ int dephy_eth_start(const dephy_eth_settings_t *settings,
     } else {
         copy_ip(eth_iface, ip_addr, ip_addr_cap,
                 settings->device_ip[0] ? settings->device_ip : "0.0.0.0");
+    }
+    {
+        int rc = configure_service_ipv4(eth_iface, settings);
+        if (rc != 0) {
+            return rc;
+        }
     }
     log_eth_state("ready", eth_iface);
     LOG_INF("Ethernet ready ip=%s", ip_addr);

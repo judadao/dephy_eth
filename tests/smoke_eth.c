@@ -10,6 +10,7 @@ int main(void)
 
     memset(&settings, 0, sizeof(settings));
     snprintf(settings.device_ip, sizeof(settings.device_ip), "192.168.10.20");
+    snprintf(settings.service_ip, sizeof(settings.service_ip), "192.168.10.21");
 
     if (dephy_eth_start(&settings, ip, sizeof(ip)) != 0) {
         return 1;
@@ -21,4 +22,3 @@ int main(void)
     printf("dephy_eth smoke passed\n");
     return 0;
 }
-

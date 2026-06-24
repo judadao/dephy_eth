@@ -10,6 +10,7 @@
 
 typedef struct {
     char device_ip[DEPHY_ETH_HOST_MAX];
+    char service_ip[DEPHY_ETH_HOST_MAX];
     char gateway[DEPHY_ETH_HOST_MAX];
     char netmask[DEPHY_ETH_HOST_MAX];
     char dns[DEPHY_ETH_HOST_MAX];
@@ -21,4 +22,3 @@ int dephy_eth_start(const dephy_eth_settings_t *settings,
                     size_t ip_addr_cap);
 
 #endif /* DEPHY_ETH_ETH_H */
-
