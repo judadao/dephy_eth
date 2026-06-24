@@ -1,0 +1,8 @@
+mainmenu "Dephy Ethernet"
+
+source "Kconfig.zephyr"
+
+config DEPHY_ETH
+	bool "Dephy Ethernet module"
+	default y
+

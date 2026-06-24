@@ -1,0 +1,5 @@
+name: dephy_eth
+build:
+  cmake: zephyr
+  kconfig: zephyr/Kconfig
+

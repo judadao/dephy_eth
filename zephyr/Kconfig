@@ -1,0 +1,4 @@
+config DEPHY_ETH
+	bool "Dephy Ethernet module"
+	default y
+

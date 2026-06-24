@@ -1,0 +1,7 @@
+{
+  "name": "dephy_eth",
+  "version": "dephy-eth-v0.1.0",
+  "type": "zephyr-module",
+  "description": "Reusable Ethernet startup helper for Dephy Zephyr products"
+}
+
