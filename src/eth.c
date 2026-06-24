@@ -23,13 +23,14 @@ int dephy_eth_start(const dephy_eth_settings_t *settings,
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
-#include <zephyr/net/dhcpv4.h>
 #include <zephyr/net/ethernet.h>
+#include <zephyr/net/ethernet_mgmt.h>
 #include <zephyr/net/net_event.h>
 #include <zephyr/net/net_if.h>
 #include <zephyr/net/net_ip.h>
 #include <zephyr/net/net_l2.h>
 #include <zephyr/net/net_mgmt.h>
+#include <zephyr/net/dhcpv4.h>
 
 LOG_MODULE_REGISTER(dephy_eth, LOG_LEVEL_INF);
 
@@ -265,4 +266,3 @@ int dephy_eth_start(const dephy_eth_settings_t *settings,
 }
 
 #endif
-
