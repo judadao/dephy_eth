@@ -24,3 +24,18 @@ dephy_eth_start(&settings, ip, sizeof(ip));
 ```
 
 On POSIX, this is a lightweight shim for Linux tests.
+
+## Systematic Regression Testing
+
+From the workspace root, run the shared pytest regression module:
+
+```sh
+../dephy_testkit/.venv/bin/python -m pytest ../dephy_testkit/tests/regression --module dephy_eth
+../dephy_testkit/.venv/bin/python -m pytest ../dephy_testkit/tests/regression --module dephy_eth --profile integration
+```
+
+The local repo test remains:
+
+```sh
+make -f Makefile.linux test
+```
