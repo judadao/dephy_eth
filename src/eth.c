@@ -31,6 +31,7 @@ int dephy_eth_start(const dephy_eth_settings_t *settings,
 #include <zephyr/net/net_l2.h>
 #include <zephyr/net/net_mgmt.h>
 #include <zephyr/net/dhcpv4.h>
+#include <zephyr/drivers/hwinfo.h>
 
 LOG_MODULE_REGISTER(dephy_eth, LOG_LEVEL_INF);
 
@@ -128,6 +129,52 @@ static void format_mac(struct net_if *iface, char *out, size_t cap)
     snprintf(out, cap, "%02x:%02x:%02x:%02x:%02x:%02x",
              link_addr->addr[0], link_addr->addr[1], link_addr->addr[2],
              link_addr->addr[3], link_addr->addr[4], link_addr->addr[5]);
+}
+
+static void configure_unique_mac(struct net_if *iface)
+{
+    uint8_t device_id[8];
+    struct ethernet_config config;
+    const struct device *dev;
+    const struct ethernet_api *api;
+    uint8_t mac[6];
+    ssize_t len;
+    int rc;
+
+    len = hwinfo_get_device_id(device_id, sizeof(device_id));
+    if (len < 6) {
+        LOG_WRN("hardware device id unavailable; keeping Ethernet MAC");
+        return;
+    }
+
+    mac[0] = 0x02;
+    mac[1] = 0x00;
+    mac[2] = 0x00;
+    mac[3] = device_id[(size_t)len - 3];
+    mac[4] = device_id[(size_t)len - 2];
+    mac[5] = device_id[(size_t)len - 1];
+
+    dev = net_if_get_device(iface);
+    api = dev ? (const struct ethernet_api *)dev->api : NULL;
+    if (!api || !api->set_config) {
+        LOG_WRN("Ethernet MAC set API unavailable; keeping current MAC");
+        return;
+    }
+
+    memset(&config, 0, sizeof(config));
+    memcpy(config.mac_address.addr, mac, sizeof(mac));
+    rc = api->set_config(dev, iface, ETHERNET_CONFIG_TYPE_MAC_ADDRESS, &config);
+    if (rc < 0) {
+        LOG_WRN("Ethernet hardware MAC apply failed rc=%d; keeping current MAC", rc);
+        return;
+    }
+    rc = net_if_set_link_addr(iface, mac, sizeof(mac), NET_LINK_ETHERNET);
+    if (rc < 0) {
+        LOG_WRN("Ethernet net_if MAC apply failed rc=%d", rc);
+        return;
+    }
+    LOG_INF("Ethernet unique MAC set to %02x:%02x:%02x:%02x:%02x:%02x",
+            mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
 static void log_eth_state(const char *stage, struct net_if *iface)
@@ -255,6 +302,7 @@ int dephy_eth_start(const dephy_eth_settings_t *settings,
     }
 
     net_if_set_default(eth_iface);
+    configure_unique_mac(eth_iface);
     net_if_up(eth_iface);
     log_eth_state("after-if-up", eth_iface);
     if (wait_for_carrier(eth_iface) != 0) {
